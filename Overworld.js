@@ -47,10 +47,35 @@ class Overworld {
     step();
   }
 
+  bindActionInput() {
+    new KeyPressListener("Enter", () => {
+      // Is there a person who I can interact with?
+      this.map.checkForActionCutscene();
+    });
+  }
+
+  bindHeroPositionCheck() {
+    document.addEventListener("PersonWalkingComplete", (e) => {
+      if (e.detail.whoId === "hero") {
+        // Hero's' position changed
+        this.map.checkForFootstepCutscene();
+      }
+    });
+  }
+
+  startMap(mapConfig) {
+    this.map = new OverworldMap(mapConfig);
+    this.map.overworld = this;
+    this.map.mountObjects();
+  }
+
   init() {
     // Create map
-    this.map = new OverworldMap(window.OverworldMaps.DemoRoom);
-    this.map.mountObjects();
+    this.startMap(window.OverworldMaps.DemoRoom);
+
+    // Action input
+    this.bindActionInput();
+    this.bindHeroPositionCheck();
 
     // Enable direction input
     this.directionInput = new DirectionInput();
@@ -59,12 +84,13 @@ class Overworld {
     // Initialize game loop
     this.startGameLoop();
 
-    this.map.startCutscene([
-      { who: "hero", type: "walk", direction: "down" },
-      { who: "hero", type: "walk", direction: "down" },
-      { who: "npcA", type: "walk", direction: "left" },
-      { who: "npcA", type: "walk", direction: "left" },
-      { who: "npcA", type: "stand", direction: "up", time: 2000 },
-    ]);
+    // this.map.startCutscene([
+    //   { who: "hero", type: "walk", direction: "down" },
+    //   { who: "hero", type: "walk", direction: "down" },
+    //   { who: "npcA", type: "walk", direction: "up" },
+    //   { who: "npcA", type: "walk", direction: "left" },
+    //   { who: "hero", type: "stand", direction: "right", time: 200 },
+    //   { type: "textMessage", text: "Welcome to my game!" },
+    // ]);
   }
 }
